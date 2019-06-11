@@ -10,6 +10,11 @@ import std.bitmanip: bigEndianToNative;
 import std.stdio: File;
 debug(osmpbf) import std.stdio;
 
+alias vec2l = vec2!long;
+alias Coords = Typedef!(vec2l, vec2l.init, "OSM coords");
+
+private:
+
 struct NativeBlob
 {
     string type;
@@ -17,7 +22,7 @@ struct NativeBlob
 }
 
 /// Returns: zero-sized blob data if no more blobs in file
-private NativeBlob readBlob(File f)
+NativeBlob readBlob(File f)
 {
     NativeBlob ret;
 
@@ -79,5 +84,12 @@ HeaderBlock readOSMHeader(File f)
     return h;
 }
 
-alias vec2l = vec2!long;
-alias Coords = Typedef!(vec2l, vec2l.init, "OSM coords");
+ubyte[] readOSMData(File f)
+{
+    auto b = f.readBlob;
+
+    if(b.data.length != 0)
+        enforce(b.type == "OSMData", "\""~b.type~"\" instead of OSMData" );
+
+    return b.data;
+}
