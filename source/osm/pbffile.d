@@ -15,15 +15,15 @@ alias vec2l = vec2!long;
 alias Coords = Typedef!(vec2l, vec2l.init, "OSM coords");
 
 /// Just throws exception
-void defaultOsmPbfExceptionHandler(OsmPbfException e)
+void defaultExceptionHandler(NonFatalOsmPbfException e)
 {
     throw e;
 }
 
 ///
-void readPbfFile(File file, void delegate(OsmPbfException) exceptionHandlerDg = toDelegate(&defaultOsmPbfExceptionHandler))
+void readPbfFile(File file, void delegate(NonFatalOsmPbfException) exceptionHandlerDg = toDelegate(&defaultExceptionHandler))
 {
-    auto hdr = file.readOSMHeader;
+    file.readOSMHeader; // skip HeaderBlock
 
     while(true)
     {
@@ -33,14 +33,16 @@ void readPbfFile(File file, void delegate(OsmPbfException) exceptionHandlerDg = 
 
             if(data.length == 0) // end of file?
                 break;
+
+            auto prim = data.fromProtobuf!PrimitiveBlock;
         }
-        catch(OsmPbfException e)
+        catch(NonFatalOsmPbfException e)
             exceptionHandlerDg(e);
     }
 }
 
 /// Non-fatal parsing exception
-class OsmPbfException : Exception
+class NonFatalOsmPbfException : Exception
 {
   ///
   this(string msg, string file = __FILE__, size_t line = __LINE__) pure @safe
@@ -73,11 +75,11 @@ NativeBlob readBlob(File f)
     if(blobHeaderLenNet.length == 0)
         return ret; // file end approached
 
-    enforce!OsmPbfException(blobHeaderLenNet.length == 4, "file corrupted at latest blob");
+    enforce!NonFatalOsmPbfException(blobHeaderLenNet.length == 4, "file corrupted at latest blob");
 
     ubyte[4] bs = blobHeaderLenNet;
     auto BlobHeaderMsgSize = bs.bigEndianToNative!uint;
-    enforce!OsmPbfException(BlobHeaderMsgSize > 0, "zero-sized blob");
+    enforce!NonFatalOsmPbfException(BlobHeaderMsgSize > 0, "zero-sized blob");
 
     // Read blob header:
     auto bh_bytes = f.rawRead(new ubyte[BlobHeaderMsgSize]); //const?
@@ -87,7 +89,7 @@ NativeBlob readBlob(File f)
 
     // Read blob:
     auto b_bytes = f.rawRead(new ubyte[bh.datasize]);
-    enforce!OsmPbfException(b_bytes.length == bh.datasize, "blob length mismatch");
+    enforce!NonFatalOsmPbfException(b_bytes.length == bh.datasize, "blob length mismatch");
     Blob blob = b_bytes.fromProtobuf!Blob;
 
     if(blob.rawSize == 0)
@@ -98,7 +100,7 @@ NativeBlob readBlob(File f)
     else
     {
         debug(osmpbf) writeln("zlib compressed block, size=", blob.rawSize);
-        enforce!OsmPbfException(blob.zlibData.length > 0, "zlib block empty");
+        enforce!NonFatalOsmPbfException(blob.zlibData.length > 0, "zlib block empty");
 
         import std.zlib: uncompress;
 
