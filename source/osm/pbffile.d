@@ -1,12 +1,14 @@
 module osm.pbffile;
 
-import std.stdio: File;
 import OSMPBF.fileformat;
+import OSMPBF.osmformat;
 import google.protobuf;
 import gfm.math.vector;
 import std.typecons: Typedef;
 import std.exception: enforce;
 import std.bitmanip: bigEndianToNative;
+import std.stdio: File;
+debug(osmpbf) import std.stdio;
 
 struct NativeBlob
 {
@@ -14,8 +16,8 @@ struct NativeBlob
     ubyte[] data;
 }
 
-/// Returns: zero-sized blob if no more blobs in file
-private NativeBlob readBlob(ref File f)
+/// Returns: zero-sized blob data if no more blobs in file
+private NativeBlob readBlob(File f)
 {
     NativeBlob ret;
 
@@ -59,6 +61,22 @@ private NativeBlob readBlob(ref File f)
     }
 
     return ret;
+}
+
+HeaderBlock readOSMHeader(File f)
+{
+    auto hb = f.readBlob;
+
+    enforce(hb.type == "OSMHeader", "\""~hb.type~"\" instead of OSMHeader");
+
+    auto h = hb.data.fromProtobuf!HeaderBlock;
+
+    debug(osmpbf)
+    {
+        writefln( "required_features=%s", h.required_features );
+    }
+
+    return h;
 }
 
 alias vec2l = vec2!long;
