@@ -14,7 +14,7 @@ import std.functional: toDelegate;
 ///
 struct PrimitivesHandlers
 {
-    //~ delegate(Node) node;
+    void delegate(Node) nodeHandler;
     void delegate(DecodedLine) lineHandler;
 }
 
@@ -55,12 +55,13 @@ void readPbfFile(
         with(handlers)
         foreach(ref grp; prim.primitivegroup)
         {
+            foreach(ref node; grp.nodes)
+                if(nodeHandler)
+                    nodeHandler(node);
+
             foreach(ref way; grp.ways)
                 if(lineHandler)
                     lineHandler(decodeWay(prim, way));
-
-            //~ if(grp.nodes.length != 0)
-                //~ addPoints(res, prim, nodes_coords, grp.nodes);
         }
     }
 }
