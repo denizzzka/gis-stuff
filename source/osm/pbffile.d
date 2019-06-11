@@ -11,11 +11,12 @@ import std.stdio: File;
 debug(osmpbf) import std.stdio;
 import std.functional: toDelegate;
 
-//~ ///
-//~ struct PrimitivesHandlers
-//~ {
+///
+struct PrimitivesHandlers
+{
     //~ delegate(Node) node;
-//~ }
+    void delegate(DecodedLine) lineHandler;
+}
 
 /// Just throws exception
 void defaultExceptionHandler(NonFatalOsmPbfException e)
@@ -24,7 +25,11 @@ void defaultExceptionHandler(NonFatalOsmPbfException e)
 }
 
 ///
-void readPbfFile(File file, void delegate(NonFatalOsmPbfException) exceptionHandlerDg = toDelegate(&defaultExceptionHandler))
+void readPbfFile(
+    File file,
+    PrimitivesHandlers handlers,
+    void delegate(NonFatalOsmPbfException) exceptionHandlerDg = toDelegate(&defaultExceptionHandler)
+)
 {
     file.readOSMHeader; // skip HeaderBlock
 
@@ -47,8 +52,13 @@ void readPbfFile(File file, void delegate(NonFatalOsmPbfException) exceptionHand
         debug(osmpbf_verbose) writefln("lat_offset=%d lon_offset=%d", prim.lat_offset, prim.lon_offset);
         debug(osmpbf_verbose) writeln("granularity=", prim.granularity);
 
+        with(handlers)
         foreach(ref grp; prim.primitivegroup)
         {
+            foreach(ref way; grp.ways)
+                if(lineHandler)
+                    lineHandler(decodeWay(prim, way));
+
             //~ if(grp.nodes.length != 0)
                 //~ addPoints(res, prim, nodes_coords, grp.nodes);
         }

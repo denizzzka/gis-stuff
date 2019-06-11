@@ -1,5 +1,7 @@
 module osm.util;
 
+import osm.pbffile: NonFatalOsmPbfException;
+import osm.tags;
 import OSMPBF.osmformat;
 
 ///
@@ -54,7 +56,8 @@ unittest
     assert( d[1].values[1] == 6 );
 }
 
-Node[] decodeDenseNodes(in DenseNodes dn)
+///
+package Node[] decodeDenseNodes(in DenseNodes dn)
 {
     auto ret = new Node[dn.id.length];
 
@@ -84,4 +87,44 @@ Node[] decodeDenseNodes(in DenseNodes dn)
     }
 
     return ret;
+}
+
+alias OSM_id = long; ///
+
+///
+struct DecodedLine
+{
+    OSM_id[] coords_idx;
+    Tag[] tags;
+
+    invariant()
+    {
+        assert( coords_idx.length >= 2 );
+    }
+}
+
+///
+package DecodedLine decodeWay(in PrimitiveBlock prim, in Way way)
+{
+    import std.conv: to;
+
+    if(way.refs.length < 2)
+        throw new NonFatalOsmPbfException("too short way (nodes number: "~way.refs.length.to!string~")");
+
+    DecodedLine res;
+
+    // decode index delta
+    OSM_id curr = 0;
+    foreach( c; way.refs )
+    {
+        curr += c;
+        res.coords_idx ~= curr;
+    }
+
+    import std.algorithm: map;
+
+    if( way.keys.length > 0 )
+        res.tags = prim.stringtable.getTags(way.keys, way.vals);
+
+    return res;
 }
