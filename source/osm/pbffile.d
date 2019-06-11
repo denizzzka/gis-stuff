@@ -6,7 +6,6 @@ import OSMPBF.fileformat;
 import OSMPBF.osmformat;
 import google.protobuf;
 import std.exception;
-import std.bitmanip: bigEndianToNative;
 import std.stdio: File;
 debug(osmpbf) import std.stdio;
 import std.functional: toDelegate;
@@ -100,6 +99,8 @@ struct NativeBlob
 /// Returns: zero-sized blob data if no more blobs in file
 NativeBlob readBlob(File f)
 {
+    import std.bitmanip: bigEndianToNative;
+
     NativeBlob ret;
 
     // Read initial blob size:
