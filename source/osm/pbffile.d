@@ -45,24 +45,33 @@ void readPbfFile(
                 break;
 
             prim = data.fromProtobuf!PrimitiveBlock;
+
+            debug(osmpbf_verbose) writefln("lat_offset=%d lon_offset=%d", prim.lat_offset, prim.lon_offset);
+            debug(osmpbf_verbose) writeln("granularity=", prim.granularity);
+
+            with(handlers)
+            foreach(ref grp; prim.primitivegroup)
+            {
+                foreach(ref node; grp.nodes)
+                    if(nodeHandler)
+                        nodeHandler(node);
+
+                //~ if(!grp.dense.isNull)
+                //~ {
+                    //~ auto nodes = decodeDenseNodes(grp.dense);
+
+                    //~ foreach(ref node; nodes)
+                        //~ if(nodeHandler)
+                            //~ nodeHandler(node);
+                //~ }
+
+                foreach(ref way; grp.ways)
+                    if(lineHandler)
+                        lineHandler(decodeWay(prim, way));
+            }
         }
         catch(NonFatalOsmPbfException e)
             exceptionHandlerDg(e);
-
-        debug(osmpbf_verbose) writefln("lat_offset=%d lon_offset=%d", prim.lat_offset, prim.lon_offset);
-        debug(osmpbf_verbose) writeln("granularity=", prim.granularity);
-
-        with(handlers)
-        foreach(ref grp; prim.primitivegroup)
-        {
-            foreach(ref node; grp.nodes)
-                if(nodeHandler)
-                    nodeHandler(node);
-
-            foreach(ref way; grp.ways)
-                if(lineHandler)
-                    lineHandler(decodeWay(prim, way));
-        }
     }
 }
 
