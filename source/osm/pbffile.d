@@ -1,18 +1,21 @@
 module osm.pbffile;
 
+public import osm.util;
+
 import OSMPBF.fileformat;
 import OSMPBF.osmformat;
 import google.protobuf;
-import gfm.math.vector;
-import std.typecons: Typedef;
 import std.exception;
 import std.bitmanip: bigEndianToNative;
 import std.stdio: File;
 debug(osmpbf) import std.stdio;
 import std.functional: toDelegate;
 
-alias vec2l = vec2!long;
-alias Coords = Typedef!(vec2l, vec2l.init, "OSM coords");
+//~ ///
+//~ struct PrimitivesHandlers
+//~ {
+    //~ delegate(Node) node;
+//~ }
 
 /// Just throws exception
 void defaultExceptionHandler(NonFatalOsmPbfException e)
@@ -27,6 +30,8 @@ void readPbfFile(File file, void delegate(NonFatalOsmPbfException) exceptionHand
 
     while(true)
     {
+        PrimitiveBlock prim;
+
         try
         {
             auto data = file.readOSMData;
@@ -34,10 +39,19 @@ void readPbfFile(File file, void delegate(NonFatalOsmPbfException) exceptionHand
             if(data.length == 0) // end of file?
                 break;
 
-            auto prim = data.fromProtobuf!PrimitiveBlock;
+            prim = data.fromProtobuf!PrimitiveBlock;
         }
         catch(NonFatalOsmPbfException e)
             exceptionHandlerDg(e);
+
+        debug(osmpbf_verbose) writefln("lat_offset=%d lon_offset=%d", prim.lat_offset, prim.lon_offset);
+        debug(osmpbf_verbose) writeln("granularity=", prim.granularity);
+
+        foreach(ref grp; prim.primitivegroup)
+        {
+            //~ if(grp.nodes.length != 0)
+                //~ addPoints(res, prim, nodes_coords, grp.nodes);
+        }
     }
 }
 
