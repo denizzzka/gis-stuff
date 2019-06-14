@@ -95,7 +95,7 @@ alias OSM_id = long; ///
 struct DecodedLine
 {
     OSM_id[] coords_idx;
-    Tag[] tags;
+    Tags tags;
 
     invariant()
     {
@@ -104,7 +104,7 @@ struct DecodedLine
 }
 
 ///
-package DecodedLine decodeWay(in PrimitiveBlock prim, in Way way)
+package DecodedLine decodeWay(in PrimitiveBlock prim, Way way)
 {
     import std.conv: to;
 
@@ -124,7 +124,7 @@ package DecodedLine decodeWay(in PrimitiveBlock prim, in Way way)
     import std.algorithm: map;
 
     if( way.keys.length > 0 )
-        res.tags = prim.stringtable.getTags(way.keys, way.vals);
+        res.tags = Tags(way.keys, way.vals);
 
     return res;
 }
