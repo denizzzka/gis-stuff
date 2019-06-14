@@ -5,7 +5,7 @@ module OSMPBF.fileformat;
 
 import google.protobuf;
 
-enum protocVersion = 3006001;
+enum protocVersion = 3008000;
 
 struct Blob
 {

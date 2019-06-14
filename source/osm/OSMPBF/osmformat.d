@@ -5,7 +5,7 @@ module OSMPBF.osmformat;
 
 import google.protobuf;
 
-enum protocVersion = 3006001;
+enum protocVersion = 3008000;
 
 struct HeaderBlock
 {
@@ -63,12 +63,12 @@ struct Info
 
 struct DenseInfo
 {
-    @Proto(1) int[] version_ = protoDefaultValue!(int[]);
-    @Proto(2, Wire.zigzag) long[] timestamp = protoDefaultValue!(long[]);
-    @Proto(3, Wire.zigzag) long[] changeset = protoDefaultValue!(long[]);
-    @Proto(4, Wire.zigzag) int[] uid = protoDefaultValue!(int[]);
-    @Proto(5, Wire.zigzag) int[] userSid = protoDefaultValue!(int[]);
-    @Proto(6) bool[] visible = protoDefaultValue!(bool[]);
+    @Proto(1, Wire.none, Yes.packed) int[] version_ = protoDefaultValue!(int[]);
+    @Proto(2, Wire.zigzag, Yes.packed) long[] timestamp = protoDefaultValue!(long[]);
+    @Proto(3, Wire.zigzag, Yes.packed) long[] changeset = protoDefaultValue!(long[]);
+    @Proto(4, Wire.zigzag, Yes.packed) int[] uid = protoDefaultValue!(int[]);
+    @Proto(5, Wire.zigzag, Yes.packed) int[] userSid = protoDefaultValue!(int[]);
+    @Proto(6, Wire.none, Yes.packed) bool[] visible = protoDefaultValue!(bool[]);
 }
 
 struct ChangeSet
@@ -79,8 +79,8 @@ struct ChangeSet
 struct Node
 {
     @Proto(1, Wire.zigzag) long id = protoDefaultValue!long;
-    @Proto(2) uint[] keys = protoDefaultValue!(uint[]);
-    @Proto(3) uint[] vals = protoDefaultValue!(uint[]);
+    @Proto(2, Wire.none, Yes.packed) uint[] keys = protoDefaultValue!(uint[]);
+    @Proto(3, Wire.none, Yes.packed) uint[] vals = protoDefaultValue!(uint[]);
     @Proto(4) Info info = protoDefaultValue!Info;
     @Proto(8, Wire.zigzag) long lat = protoDefaultValue!long;
     @Proto(9, Wire.zigzag) long lon = protoDefaultValue!long;
@@ -88,31 +88,31 @@ struct Node
 
 struct DenseNodes
 {
-    @Proto(1, Wire.zigzag) long[] id = protoDefaultValue!(long[]);
+    @Proto(1, Wire.zigzag, Yes.packed) long[] id = protoDefaultValue!(long[]);
     @Proto(5) DenseInfo denseinfo = protoDefaultValue!DenseInfo;
-    @Proto(8, Wire.zigzag) long[] lat = protoDefaultValue!(long[]);
-    @Proto(9, Wire.zigzag) long[] lon = protoDefaultValue!(long[]);
-    @Proto(10) int[] keysVals = protoDefaultValue!(int[]);
+    @Proto(8, Wire.zigzag, Yes.packed) long[] lat = protoDefaultValue!(long[]);
+    @Proto(9, Wire.zigzag, Yes.packed) long[] lon = protoDefaultValue!(long[]);
+    @Proto(10, Wire.none, Yes.packed) int[] keysVals = protoDefaultValue!(int[]);
 }
 
 struct Way
 {
     @Proto(1) long id = protoDefaultValue!long;
-    @Proto(2) uint[] keys = protoDefaultValue!(uint[]);
-    @Proto(3) uint[] vals = protoDefaultValue!(uint[]);
+    @Proto(2, Wire.none, Yes.packed) uint[] keys = protoDefaultValue!(uint[]);
+    @Proto(3, Wire.none, Yes.packed) uint[] vals = protoDefaultValue!(uint[]);
     @Proto(4) Info info = protoDefaultValue!Info;
-    @Proto(8, Wire.zigzag) long[] refs = protoDefaultValue!(long[]);
+    @Proto(8, Wire.zigzag, Yes.packed) long[] refs = protoDefaultValue!(long[]);
 }
 
 struct Relation
 {
     @Proto(1) long id = protoDefaultValue!long;
-    @Proto(2) uint[] keys = protoDefaultValue!(uint[]);
-    @Proto(3) uint[] vals = protoDefaultValue!(uint[]);
+    @Proto(2, Wire.none, Yes.packed) uint[] keys = protoDefaultValue!(uint[]);
+    @Proto(3, Wire.none, Yes.packed) uint[] vals = protoDefaultValue!(uint[]);
     @Proto(4) Info info = protoDefaultValue!Info;
-    @Proto(8) int[] rolesSid = protoDefaultValue!(int[]);
-    @Proto(9, Wire.zigzag) long[] memids = protoDefaultValue!(long[]);
-    @Proto(10) MemberType[] types = protoDefaultValue!(MemberType[]);
+    @Proto(8, Wire.none, Yes.packed) int[] rolesSid = protoDefaultValue!(int[]);
+    @Proto(9, Wire.zigzag, Yes.packed) long[] memids = protoDefaultValue!(long[]);
+    @Proto(10, Wire.none, Yes.packed) MemberType[] types = protoDefaultValue!(MemberType[]);
 
     enum MemberType
     {
