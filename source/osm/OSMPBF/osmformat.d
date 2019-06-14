@@ -7,7 +7,7 @@ import google.protobuf;
 
 enum protocVersion = 3008000;
 
-struct HeaderBlock
+class HeaderBlock
 {
     @Proto(1) HeaderBBox bbox = protoDefaultValue!HeaderBBox;
     @Proto(4) string[] requiredFeatures = protoDefaultValue!(string[]);
@@ -19,7 +19,7 @@ struct HeaderBlock
     @Proto(34) string osmosisReplicationBaseUrl = protoDefaultValue!string;
 }
 
-struct HeaderBBox
+class HeaderBBox
 {
     @Proto(1, Wire.zigzag) long left = protoDefaultValue!long;
     @Proto(2, Wire.zigzag) long right = protoDefaultValue!long;
@@ -27,7 +27,7 @@ struct HeaderBBox
     @Proto(4, Wire.zigzag) long bottom = protoDefaultValue!long;
 }
 
-struct PrimitiveBlock
+class PrimitiveBlock
 {
     @Proto(1) StringTable stringtable = protoDefaultValue!StringTable;
     @Proto(2) PrimitiveGroup[] primitivegroup = protoDefaultValue!(PrimitiveGroup[]);
@@ -37,7 +37,7 @@ struct PrimitiveBlock
     @Proto(20) long lonOffset = protoDefaultValue!long;
 }
 
-struct PrimitiveGroup
+class PrimitiveGroup
 {
     @Proto(1) Node[] nodes = protoDefaultValue!(Node[]);
     @Proto(2) DenseNodes dense = protoDefaultValue!DenseNodes;
@@ -46,12 +46,12 @@ struct PrimitiveGroup
     @Proto(5) ChangeSet[] changesets = protoDefaultValue!(ChangeSet[]);
 }
 
-struct StringTable
+class StringTable
 {
     @Proto(1) bytes[] s = protoDefaultValue!(bytes[]);
 }
 
-struct Info
+class Info
 {
     @Proto(1) int version_ = protoDefaultValue!int;
     @Proto(2) long timestamp = protoDefaultValue!long;
@@ -61,7 +61,7 @@ struct Info
     @Proto(6) bool visible = protoDefaultValue!bool;
 }
 
-struct DenseInfo
+class DenseInfo
 {
     @Proto(1, Wire.none, Yes.packed) int[] version_ = protoDefaultValue!(int[]);
     @Proto(2, Wire.zigzag, Yes.packed) long[] timestamp = protoDefaultValue!(long[]);
@@ -71,12 +71,12 @@ struct DenseInfo
     @Proto(6, Wire.none, Yes.packed) bool[] visible = protoDefaultValue!(bool[]);
 }
 
-struct ChangeSet
+class ChangeSet
 {
     @Proto(1) long id = protoDefaultValue!long;
 }
 
-struct Node
+class Node
 {
     @Proto(1, Wire.zigzag) long id = protoDefaultValue!long;
     @Proto(2, Wire.none, Yes.packed) uint[] keys = protoDefaultValue!(uint[]);
@@ -86,7 +86,7 @@ struct Node
     @Proto(9, Wire.zigzag) long lon = protoDefaultValue!long;
 }
 
-struct DenseNodes
+class DenseNodes
 {
     @Proto(1, Wire.zigzag, Yes.packed) long[] id = protoDefaultValue!(long[]);
     @Proto(5) DenseInfo denseinfo = protoDefaultValue!DenseInfo;
@@ -95,7 +95,7 @@ struct DenseNodes
     @Proto(10, Wire.none, Yes.packed) int[] keysVals = protoDefaultValue!(int[]);
 }
 
-struct Way
+class Way
 {
     @Proto(1) long id = protoDefaultValue!long;
     @Proto(2, Wire.none, Yes.packed) uint[] keys = protoDefaultValue!(uint[]);
@@ -104,7 +104,7 @@ struct Way
     @Proto(8, Wire.zigzag, Yes.packed) long[] refs = protoDefaultValue!(long[]);
 }
 
-struct Relation
+class Relation
 {
     @Proto(1) long id = protoDefaultValue!long;
     @Proto(2, Wire.none, Yes.packed) uint[] keys = protoDefaultValue!(uint[]);
