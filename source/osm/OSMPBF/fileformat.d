@@ -7,7 +7,7 @@ import google.protobuf;
 
 enum protocVersion = 3008000;
 
-class Blob
+struct Blob
 {
     @Proto(1) bytes raw = protoDefaultValue!bytes;
     @Proto(2) int rawSize = protoDefaultValue!int;
@@ -16,7 +16,7 @@ class Blob
     @Proto(5) bytes OBSOLETEBzip2Data = protoDefaultValue!bytes;
 }
 
-class BlobHeader
+struct BlobHeader
 {
     @Proto(1) string type = protoDefaultValue!string;
     @Proto(2) bytes indexdata = protoDefaultValue!bytes;

@@ -60,7 +60,7 @@ void readPbfFile(
                     if(nodeHandler)
                         nodeHandler(node);
 
-                if(grp.dense !is null)
+                if(grp.dense != protoDefaultValue!DenseNodes)
                 {
                     auto nodes = grp.dense.decodeDenseNodes;
 
