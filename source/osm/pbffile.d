@@ -10,11 +10,12 @@ import std.exception;
 import std.stdio: File;
 debug(osmpbf) import std.stdio;
 import std.functional: toDelegate;
+import gfm.math.vector: vec2;
 
 ///
 struct PrimitivesHandlers
 {
-    void delegate(Node, lazy const Tag[]) nodeHandler;
+    void delegate(ref Node, OsmCoords coords, lazy const Tag[]) nodeHandler;
     void delegate(DecodedLine, lazy const Tag[]) lineHandler;
 }
 
@@ -23,6 +24,9 @@ void defaultExceptionHandler(NonFatalOsmPbfException e)
 {
     throw e;
 }
+
+alias OsmCoords = vec2!long;
+alias FloatLatLon = vec2!real;
 
 ///
 void readPbfFile(
@@ -49,8 +53,8 @@ void readPbfFile(
         catch(NonFatalOsmPbfException e)
             exceptionHandlerDg(e);
 
-        debug(osmpbf_verbose) writefln("lat_offset=%d lon_offset=%d", prim.lat_offset, prim.lon_offset);
-        debug(osmpbf_verbose) writeln("granularity=", prim.granularity);
+        debug(osmpbf_verbose) writefln("lat_offset=%d lon_offset=%d", prim.latOffset, prim.lonOffset);
+        debug(osmpbf_verbose) writefln("granularity=%d", prim.granularity);
 
         with(handlers)
         foreach(ref grp; prim.primitivegroup)
@@ -61,7 +65,11 @@ void readPbfFile(
                 {
                     foreach(ref node; grp.nodes)
                     {
-                        nodeHandler(node, prim.stringtable.getTags(node.keys, node.vals));
+                        nodeHandler(
+                            node,
+                            prim.decodeGranularCoords(node),
+                            prim.stringtable.getTags(node.keys, node.vals)
+                        );
                     }
 
                     // TODO: Potentially incorrect check
@@ -71,7 +79,11 @@ void readPbfFile(
                         auto nodes = grp.dense.decodeDenseNodes;
 
                         foreach(ref node; nodes)
-                            nodeHandler(node, prim.stringtable.getTags(node.keys, node.vals));
+                            nodeHandler(
+                                node,
+                                prim.decodeGranularCoords(node),
+                                prim.stringtable.getTags(node.keys, node.vals)
+                            );
                     }
                 }
 
@@ -99,7 +111,23 @@ class NonFatalOsmPbfException : Exception
   }
 }
 
+/// Decode OSM coords into floating
+auto coords2float(in OsmCoords c) pure
+{
+    return FloatLatLon(.000_000_001 * c.x,  .000_000_001 * c.y);
+}
+
 private:
+
+auto decodeGranularCoords(in PrimitiveBlock pb, in Node n) pure
+{
+    OsmCoords r;
+
+    r.x = pb.latOffset + pb.granularity * n.lat;
+    r.y = pb.lonOffset + pb.granularity * n.lon;
+
+    return r;
+}
 
 struct NativeBlob
 {
@@ -166,7 +194,7 @@ HeaderBlock readOSMHeader(File f)
 
     debug(osmpbf)
     {
-        writefln( "required_features=%s", h.required_features );
+        writefln("required_features=%s", h.requiredFeatures);
     }
 
     return h;
