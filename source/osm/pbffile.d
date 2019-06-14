@@ -53,6 +53,9 @@ void readPbfFile(
         catch(NonFatalOsmPbfException e)
             exceptionHandlerDg(e);
 
+        if(prim.granularity == 0)
+            prim.granularity = 100; // set to default
+
         debug(osmpbf_verbose) writefln("lat_offset=%d lon_offset=%d", prim.latOffset, prim.lonOffset);
         debug(osmpbf_verbose) writefln("granularity=%d", prim.granularity);
 
@@ -119,7 +122,7 @@ auto coords2float(in OsmCoords c) pure
 
 private:
 
-auto decodeGranularCoords(in PrimitiveBlock pb, in Node n) pure
+OsmCoords decodeGranularCoords(in PrimitiveBlock pb, in Node n) pure
 {
     OsmCoords r;
 
