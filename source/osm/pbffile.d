@@ -44,33 +44,38 @@ void readPbfFile(
                 break;
 
             prim = data.fromProtobuf!PrimitiveBlock;
+        }
+        catch(NonFatalOsmPbfException e)
+            exceptionHandlerDg(e);
 
-            debug(osmpbf_verbose) writefln("lat_offset=%d lon_offset=%d", prim.lat_offset, prim.lon_offset);
-            debug(osmpbf_verbose) writeln("granularity=", prim.granularity);
+        debug(osmpbf_verbose) writefln("lat_offset=%d lon_offset=%d", prim.lat_offset, prim.lon_offset);
+        debug(osmpbf_verbose) writeln("granularity=", prim.granularity);
 
-            with(handlers)
-            foreach(ref grp; prim.primitivegroup)
+        with(handlers)
+        foreach(ref grp; prim.primitivegroup)
+        {
+            try
             {
                 foreach(ref node; grp.nodes)
                     if(nodeHandler)
                         nodeHandler(node);
 
-                //~ if(!grp.dense.isNull)
-                //~ {
-                    //~ auto nodes = decodeDenseNodes(grp.dense);
+                if(grp.dense !is null)
+                {
+                    auto nodes = grp.dense.decodeDenseNodes;
 
-                    //~ foreach(ref node; nodes)
-                        //~ if(nodeHandler)
-                            //~ nodeHandler(node);
-                //~ }
+                    foreach(ref node; nodes)
+                        if(nodeHandler)
+                            nodeHandler(node);
+                }
 
                 foreach(ref way; grp.ways)
                     if(lineHandler)
                         lineHandler(decodeWay(prim, way));
             }
+            catch(NonFatalOsmPbfException e)
+                exceptionHandlerDg(e);
         }
-        catch(NonFatalOsmPbfException e)
-            exceptionHandlerDg(e);
     }
 }
 
