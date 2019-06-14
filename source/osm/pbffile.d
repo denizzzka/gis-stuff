@@ -15,7 +15,7 @@ import std.functional: toDelegate;
 struct PrimitivesHandlers
 {
     void delegate(Node, lazy const Tag[]) nodeHandler;
-    void delegate(DecodedLine) lineHandler;
+    void delegate(DecodedLine, lazy const Tag[]) lineHandler;
 }
 
 /// Just throws exception
@@ -75,9 +75,9 @@ void readPbfFile(
                     }
                 }
 
-                foreach(ref way; grp.ways)
-                    if(lineHandler)
-                        lineHandler(decodeWay(prim, way));
+                if(lineHandler)
+                    foreach(ref way; grp.ways)
+                        lineHandler(decodeWay(prim, way), prim.stringtable.getTags(way.keys, way.vals));
             }
             catch(NonFatalOsmPbfException e)
                 exceptionHandlerDg(e);
