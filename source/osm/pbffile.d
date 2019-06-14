@@ -2,6 +2,7 @@ module osm.pbffile;
 
 public import osm.util;
 
+import osm.tags;
 import OSMPBF.fileformat;
 import OSMPBF.osmformat;
 import google.protobuf;
@@ -13,7 +14,7 @@ import std.functional: toDelegate;
 ///
 struct PrimitivesHandlers
 {
-    void delegate(Node) nodeHandler;
+    void delegate(Node, lazy const Tag[]) nodeHandler;
     void delegate(DecodedLine) lineHandler;
 }
 
@@ -56,19 +57,22 @@ void readPbfFile(
         {
             try
             {
-                foreach(ref node; grp.nodes)
-                    if(nodeHandler)
-                        nodeHandler(node);
-
-                // TODO: Potentially incorrect check
-                // More: https://github.com/dcarp/protobuf-d/issues/21
-                if(grp.dense != protoDefaultValue!DenseNodes)
+                if(nodeHandler)
                 {
-                    auto nodes = grp.dense.decodeDenseNodes;
+                    foreach(ref node; grp.nodes)
+                    {
+                        nodeHandler(node, prim.stringtable.getTags(node.keys, node.vals));
+                    }
 
-                    foreach(ref node; nodes)
-                        if(nodeHandler)
-                            nodeHandler(node);
+                    // TODO: Potentially incorrect check
+                    // More: https://github.com/dcarp/protobuf-d/issues/21
+                    if(grp.dense != protoDefaultValue!DenseNodes)
+                    {
+                        auto nodes = grp.dense.decodeDenseNodes;
+
+                        foreach(ref node; nodes)
+                            nodeHandler(node, prim.stringtable.getTags(node.keys, node.vals));
+                    }
                 }
 
                 foreach(ref way; grp.ways)

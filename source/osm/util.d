@@ -95,11 +95,17 @@ alias OSM_id = long; ///
 struct DecodedLine
 {
     OSM_id[] coords_idx;
-    Tags tags;
 
     invariant()
     {
         assert( coords_idx.length >= 2 );
+    }
+
+    string toString() const
+    {
+        import std.format;
+
+        return format("nodes:%s", coords_idx);
     }
 }
 
@@ -120,11 +126,6 @@ package DecodedLine decodeWay(in PrimitiveBlock prim, Way way)
         curr += c;
         res.coords_idx ~= curr;
     }
-
-    import std.algorithm: map;
-
-    if( way.keys.length > 0 )
-        res.tags = Tags(way.keys, way.vals);
 
     return res;
 }
