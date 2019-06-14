@@ -60,6 +60,8 @@ void readPbfFile(
                     if(nodeHandler)
                         nodeHandler(node);
 
+                // TODO: Potentially incorrect check
+                // More: https://github.com/dcarp/protobuf-d/issues/21
                 if(grp.dense != protoDefaultValue!DenseNodes)
                 {
                     auto nodes = grp.dense.decodeDenseNodes;
