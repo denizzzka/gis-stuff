@@ -117,7 +117,7 @@ class NonFatalOsmPbfException : Exception
 /// Decode OSM coords into floating
 auto coords2float(in OsmCoords c) pure
 {
-    return FloatLatLon(.000_000_001 * c.x,  .000_000_001 * c.y);
+    return FloatLatLon(.000_000_001f * c.x,  .000_000_001f * c.y);
 }
 
 private:
