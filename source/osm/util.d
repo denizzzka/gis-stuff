@@ -25,7 +25,7 @@ Tags[] decodeDenseTags(in int[] denseTags)
         {
             import std.exception: enforce;
 
-            enforce( denseTags[i] != 0 );
+            enforce( denseTags[i] != 0 ); //TODO: add NonFatalOsmPbfException exception
             enforce( denseTags[i+1] != 0 );
 
             t.keys ~= denseTags[i];
@@ -59,13 +59,19 @@ unittest
 ///
 package Node[] decodeDenseNodes(in DenseNodes dn)
 {
-    auto ret = new Node[dn.id.length];
+    import std.exception: enforce;
+
+    enforce!NonFatalOsmPbfException(dn.lat.length == dn.id.length);
+    enforce!NonFatalOsmPbfException(dn.lon.length == dn.id.length);
 
     auto tags = decodeDenseTags(dn.keysVals);
+    //TODO: implement (lazy?) decoding of DenseInfo
+
+    auto ret = new Node[dn.id.length];
 
     Node curr;
 
-    foreach(i, c; dn.id)
+    foreach(i, _; ret)
     {
         // decode delta
         curr.id += dn.id[i];

@@ -1,0 +1,7 @@
+name "gis-stuff"
+description "Some GIS stuff"
+authors "Denis Feklushkin"
+copyright "Copyright © 2019, Denis Feklushkin"
+license "MIT"
+dependency "protobuf" version="~>0.5.4"
+dependency "gfm" version="~>8.0.0"
